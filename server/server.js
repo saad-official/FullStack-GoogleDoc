@@ -1,6 +1,17 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+
+const mongoose = require("mongoose");
+
+mongoose
+  .connect(process.env.DATABASE_URL, {
+    useNewUrlParser: true,
+  })
+
+  .then(() => console.log("Database Connected Successfully ss"))
+
+  .catch((err) => console.log(err));
 // const express = require("express");
 const io = require("socket.io")(3001, {
   cors: {
@@ -10,9 +21,16 @@ const io = require("socket.io")(3001, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("send-changes", (delta) => {
-    socket.broadcast.emit("receive-changes", delta);
+  socket.on("get-document", (documentId) => {
+    const data = "";
+    socket.join(documentId);
+    socket.emit("load-document", data);
+
+    socket.on("send-changes", (delta) => {
+      socket.broadcast.to(documentId).emit("receive-changes", delta);
+    });
   });
+
   // console.log("conntected");
 });
 // const port = process.env.PORT || 8080;

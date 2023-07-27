@@ -22,9 +22,16 @@ function TextEditor() {
     console.log('ddd', documentId);
 
     useEffect(() => {
-        if(socket == null || quil == null) return
+        if (socket == null || quil == null) return
         
-    }, []);
+        socket.once("load-document", document => {
+            quil.setContents(document)
+          quil.enable()  
+        })
+
+        socket.emit('get-document', documentId);
+        
+    }, [socket, quil, documentId]);
 
 
     useEffect(() => {
@@ -92,6 +99,9 @@ function TextEditor() {
           theme: 'snow',
           modules: { toolbar: TOOLBAR_OPTIONS },
       });
+
+      q.disable();
+      q.setText('Loading');
       setQuil(q);
   }, []);
 

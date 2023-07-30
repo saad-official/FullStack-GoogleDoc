@@ -3,6 +3,8 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
+const SAVE_DOCUMENT = 2000;
+
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
     [{ font: [] }],
@@ -20,6 +22,19 @@ function TextEditor() {
     const [quil, setQuil] = useState();
     const { id: documentId } = useParams();
     console.log('ddd', documentId);
+
+    useEffect(() => {
+        
+        if (socket == null || quil == null) return;
+
+        const intervel = setInterval(() => {
+            socket.emit('save-document', quil.getContents())
+        }, SAVE_DOCUMENT)
+
+        return () => {
+            clearInterval(intervel);
+        }
+    }, [socket, quil]);
 
     useEffect(() => {
         if (socket == null || quil == null) return
